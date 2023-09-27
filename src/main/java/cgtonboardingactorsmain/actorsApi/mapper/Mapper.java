@@ -53,6 +53,7 @@ public class Mapper {
             fis.read(fileContent);
             String encodedString = Base64.getEncoder().encodeToString(fileContent);
             actorDto.setActorImage("<base64 image>,"+encodedString);
+            actorDto.setImageName(actor.getImageName());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +73,7 @@ public class Mapper {
         actor.setSpouse(actorDto.getSpouse());
 
         String[] name = actorDto.getActorImage().split(",");
-        String dataUri = name[0];
+        String dataUri = name[1];
         Random random = new Random();
         try {
             byte[] decodedBytes = Base64.getDecoder().decode(dataUri);

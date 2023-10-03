@@ -1,6 +1,6 @@
 package cgtonboardingactorsmain.actorsApi.service;
 
-import cgtonboardingactorsmain.actorsApi.FileManager;
+import cgtonboardingactorsmain.actorsApi.FilesHandling.FileManager;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;

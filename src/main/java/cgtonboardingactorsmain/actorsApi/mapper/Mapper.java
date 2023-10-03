@@ -1,6 +1,6 @@
 package cgtonboardingactorsmain.actorsApi.mapper;
 
-import cgtonboardingactorsmain.actorsApi.FileManager;
+import cgtonboardingactorsmain.actorsApi.FilesHandling.FileManager;
 import cgtonboardingactorsmain.actorsApi.controller.ActorsController;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;

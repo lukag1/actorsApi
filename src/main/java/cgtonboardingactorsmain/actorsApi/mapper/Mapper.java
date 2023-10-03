@@ -1,5 +1,6 @@
 package cgtonboardingactorsmain.actorsApi.mapper;
 
+import cgtonboardingactorsmain.actorsApi.FileManager;
 import cgtonboardingactorsmain.actorsApi.controller.ActorsController;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
@@ -7,15 +8,7 @@ import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
 import cgtonboardingactorsmain.actorsApi.repository.ActorsRepository;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Random;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -23,9 +16,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class Mapper {
 
     ActorsRepository actorsRepository;
+    FileManager fileManager;
 
-    public Mapper(ActorsRepository actorsRepository) {
+    public Mapper(ActorsRepository actorsRepository,FileManager fileManager) {
         this.actorsRepository = actorsRepository;
+        this.fileManager = fileManager;
     }
 
     public ActorDto actorToActorDto(Actor actor){
@@ -44,18 +39,8 @@ public class Mapper {
         int year = now.getYear() - actor.getDateOfBirth().getYear();
         actorDto.setAge(year);
         actorDto.setHref(linkTo(ActorsController.class).slash(actorDto.getId()).toString());
-
-        File file = new File(actor.getImageName());
+        actorDto.setActorImage(fileManager.saveCode(actor));
         actorDto.setImageName(actor.getImageName());
-
-        try (FileInputStream fis = new FileInputStream(file)){
-            byte[] fileContent = new byte[(int) file.length()];
-            fis.read(fileContent);
-            String encodedString = Base64.getEncoder().encodeToString(fileContent);
-            actorDto.setActorImage("<base64 image>,"+encodedString);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         return actorDto;
     }
@@ -71,21 +56,7 @@ public class Mapper {
         actor.setDateOfBirth(actorDto.getDateOfBirth());
         actor.setSpouse(actorDto.getSpouse());
 
-        //String[] name = actorDto.getActorImage().split(",");
-        String dataUri = actorDto.getActorImage();
-        Random random = new Random();
-        try {
-            byte[] decodedBytes = Base64.getDecoder().decode(dataUri);
-            String imageName = "actorImage_" + random.nextInt(100) + ".jpg";
-            actor.setImageName(imageName);
-            try (FileOutputStream fos = new FileOutputStream(imageName)) {
-                fos.write(decodedBytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        actor.setImageName(fileManager.saveImageName(actorDto));
 
         return actor;
     }

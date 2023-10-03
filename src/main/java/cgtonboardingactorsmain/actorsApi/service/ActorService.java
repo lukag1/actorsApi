@@ -1,5 +1,6 @@
 package cgtonboardingactorsmain.actorsApi.service;
 
+import cgtonboardingactorsmain.actorsApi.FileManager;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
@@ -17,10 +18,13 @@ public class ActorService {
     ActorsRepository actorsRepository;
     Mapper mapper;
 
+    FileManager fileManager;
+
     @Autowired
-    public ActorService(ActorsRepository actorsRepository, Mapper mapper) {
+    public ActorService(ActorsRepository actorsRepository, Mapper mapper,FileManager fileManager) {
         this.mapper = mapper;
         this.actorsRepository = actorsRepository;
+        this.fileManager = fileManager;
     }
 
     public List<ActorDto> findAll(){
@@ -43,7 +47,6 @@ public class ActorService {
     }
 
     public ActorDto update(CreateActorDto createActorDto, int id) {
-        //Actor actor = mapper.createActorDtoToActor(createActorDto);
         Actor actorOld = actorsRepository.findById(id).get();
         actorOld.setGender(createActorDto.getGender());
         actorOld.setSpouse(createActorDto.getSpouse());
@@ -53,7 +56,7 @@ public class ActorService {
         actorOld.setDateOfBirth(createActorDto.getDateOfBirth());
         actorOld.setPlaceOfBirth(createActorDto.getPlaceOfBirth());
         actorOld.setFullName(createActorDto.getFullName());
-        actorOld.setImageName(createActorDto.getActorImage());
+        actorOld.setImageName(fileManager.updateImage(createActorDto, actorsRepository.findById(id)));
 
         actorsRepository.save(actorOld);
         return mapper.actorToActorDto(actorOld);

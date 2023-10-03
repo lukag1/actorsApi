@@ -3,9 +3,11 @@ package cgtonboardingactorsmain.actorsApi.controller;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
 import cgtonboardingactorsmain.actorsApi.service.ActorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,12 +35,12 @@ public class ActorsController {
     }
 
     @PostMapping
-    public ResponseEntity<ActorDto> add(@RequestBody CreateActorDto createActorDto){
+    public ResponseEntity<ActorDto> add(@RequestBody @Validated CreateActorDto createActorDto){
         return new ResponseEntity<>(actorService.add(createActorDto), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<ActorDto> updateActor(@RequestBody CreateActorDto createActorDto, @PathVariable int id){
+    public ResponseEntity<ActorDto> updateActor(@RequestBody @Valid CreateActorDto createActorDto, @PathVariable int id){
         return new ResponseEntity<>(actorService.update(createActorDto, id), HttpStatus.OK);
     }
 
@@ -46,5 +48,12 @@ public class ActorsController {
     public ResponseEntity<?> delete(@PathVariable int id){
         actorService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping(path = "/image/{id}")
+    public ResponseEntity<String> getCodeImage(@PathVariable int id){
+        ActorDto actor = actorService.findById(id).get();
+        String code = actor.getActorImage();
+        return new ResponseEntity<>(code, HttpStatus.OK);
     }
 }

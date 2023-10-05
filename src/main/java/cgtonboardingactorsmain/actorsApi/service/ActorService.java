@@ -34,7 +34,6 @@ public class ActorService {
 
     public List<ActorDto> findAll(LoggerModel lm){
         logger.formatLogMessageGen(LogLevel.INFO,lm,"Started findAll in Service");
-
         List<Actor> actors = actorsRepository.findAll();
         List<ActorDto> actorDtos = actors.stream()
                 .map(movie -> mapper.actorToActorDto(movie, lm))
@@ -63,21 +62,26 @@ public class ActorService {
 
     public ActorDto update(CreateActorDto createActorDto, int id, LoggerModel lm) {
         logger.formatLogMessageGen(LogLevel.INFO,lm,"Started updating in Service");
-
         Actor actorOld = actorsRepository.findById(id).get();
-        actorOld.setGender(createActorDto.getGender());
-        actorOld.setSpouse(createActorDto.getSpouse());
-        actorOld.setParents(createActorDto.getParents());
-        actorOld.setChildren(createActorDto.getChildren());
-        actorOld.setBiography(createActorDto.getBiography());
-        actorOld.setDateOfBirth(createActorDto.getDateOfBirth());
-        actorOld.setPlaceOfBirth(createActorDto.getPlaceOfBirth());
-        actorOld.setFullName(createActorDto.getFullName());
-        actorOld.setImageName(fileManager.updateImage(createActorDto, actorsRepository.findById(id),lm));
+        ActorDto actorNew = null;
+        if(actorOld != null){
+            actorOld.setGender(createActorDto.getGender());
+            actorOld.setSpouse(createActorDto.getSpouse());
+            actorOld.setParents(createActorDto.getParents());
+            actorOld.setChildren(createActorDto.getChildren());
+            actorOld.setBiography(createActorDto.getBiography());
+            actorOld.setDateOfBirth(createActorDto.getDateOfBirth());
+            actorOld.setPlaceOfBirth(createActorDto.getPlaceOfBirth());
+            actorOld.setFullName(createActorDto.getFullName());
+            actorOld.setImageName(fileManager.updateImage(createActorDto, actorsRepository.findById(id),lm));
 
-        actorsRepository.save(actorOld);
-        return mapper.actorToActorDto(actorOld,lm);
-
+            actorsRepository.save(actorOld);
+            logger.formatLogMessageGen(LogLevel.INFO,lm,"Saved actor update in Service");
+            actorNew = mapper.actorToActorDto(actorOld,lm);
+        }else {
+            logger.formatErrorLogMessageError(LogLevel.ERROR, lm, "Error to get actor");
+        }
+        return actorNew;
     }
 
 }

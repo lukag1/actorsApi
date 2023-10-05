@@ -74,11 +74,19 @@ public class ActorsController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(path = "/image/{id}")
-    public ResponseEntity<String> getCodeImage(@PathVariable int id, LoggerModel lm){
+    @GetMapping(path = "/image/{id}/{transactionId}")
+    public ResponseEntity<String> getCodeImage(@PathVariable int id, @PathVariable int transactionId) {
+        LoggerModel lm = logger.generateLM(transactionId);
         logger.formatLogMessageGen(LogLevel.INFO, lm, "Call from Movies Api to get image name");
-        ActorDto actor = actorService.findById(id,lm).get();
-        String code = actor.getActorImage();
-        return new ResponseEntity<>(code, HttpStatus.OK);
+
+        Optional<ActorDto> actorOptional = actorService.findById(id, lm);
+        if (actorOptional.isPresent()) {
+            ActorDto actor = actorOptional.get();
+            String code = actor.getActorImage();
+            return new ResponseEntity<>(code, HttpStatus.OK);
+        } else {
+            logger.formatErrorLogMessageError(LogLevel.ERROR, lm, "Actor not found with ID: " + id);
+            return new ResponseEntity<>("Actor not found", HttpStatus.NOT_FOUND);
+        }
     }
 }

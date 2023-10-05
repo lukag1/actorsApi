@@ -4,8 +4,12 @@ import cgtonboardingactorsmain.actorsApi.FilesHandling.FileManager;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
+import cgtonboardingactorsmain.actorsApi.logger.LogLevel;
+import cgtonboardingactorsmain.actorsApi.logger.LoggerImpl;
+import cgtonboardingactorsmain.actorsApi.logger.LoggerModel;
 import cgtonboardingactorsmain.actorsApi.mapper.Mapper;
 import cgtonboardingactorsmain.actorsApi.repository.ActorsRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,36 +21,49 @@ public class ActorService {
 
     ActorsRepository actorsRepository;
     Mapper mapper;
-
     FileManager fileManager;
+    LoggerImpl logger;
 
     @Autowired
-    public ActorService(ActorsRepository actorsRepository, Mapper mapper,FileManager fileManager) {
+    public ActorService(ActorsRepository actorsRepository, Mapper mapper,FileManager fileManager,LoggerImpl logger) {
         this.mapper = mapper;
         this.actorsRepository = actorsRepository;
         this.fileManager = fileManager;
+        this.logger = logger;
     }
 
-    public List<ActorDto> findAll(){
-        return actorsRepository.findAll().stream().map(mapper::actorToActorDto).toList();
+    public List<ActorDto> findAll(LoggerModel lm){
+        logger.formatLogMessageGen(LogLevel.INFO,lm,"Started findAll in Service");
+
+        List<Actor> actors = actorsRepository.findAll();
+        List<ActorDto> actorDtos = actors.stream()
+                .map(movie -> mapper.actorToActorDto(movie, lm))
+                .toList();
+        return actorDtos;
     }
 
-    public Optional<ActorDto> findById(int id){
-        return actorsRepository.findById(id).map(mapper::actorToActorDto);
+    public Optional<ActorDto> findById(int id,LoggerModel lm){
+        logger.formatLogMessageGen(LogLevel.INFO,lm,"Started findAll in Service");
+        Actor actor =  actorsRepository.findById(id).get();
+        return Optional.ofNullable(mapper.actorToActorDto(actor,lm));
     }
 
-    public ActorDto add(CreateActorDto createActorDto){
-        Actor actor = mapper.createActorDtoToActor(createActorDto);
+    public ActorDto add(@Valid CreateActorDto createActorDto, LoggerModel lm){
+        logger.formatLogMessageGen(LogLevel.INFO,lm,"Started adding actor in Service");
+        Actor actor = mapper.createActorDtoToActor(createActorDto, lm);
         actorsRepository.save(actor);
-        return mapper.actorToActorDto(actor);
+        return mapper.actorToActorDto(actor, lm);
 
     }
 
-    public void delete(int id){
+    public void delete(int id, LoggerModel lm){
+        logger.formatLogMessageGen(LogLevel.INFO,lm,"Started deleting in Service");
         actorsRepository.deleteById(id);
     }
 
-    public ActorDto update(CreateActorDto createActorDto, int id) {
+    public ActorDto update(CreateActorDto createActorDto, int id, LoggerModel lm) {
+        logger.formatLogMessageGen(LogLevel.INFO,lm,"Started updating in Service");
+
         Actor actorOld = actorsRepository.findById(id).get();
         actorOld.setGender(createActorDto.getGender());
         actorOld.setSpouse(createActorDto.getSpouse());
@@ -56,10 +73,10 @@ public class ActorService {
         actorOld.setDateOfBirth(createActorDto.getDateOfBirth());
         actorOld.setPlaceOfBirth(createActorDto.getPlaceOfBirth());
         actorOld.setFullName(createActorDto.getFullName());
-        actorOld.setImageName(fileManager.updateImage(createActorDto, actorsRepository.findById(id)));
+        actorOld.setImageName(fileManager.updateImage(createActorDto, actorsRepository.findById(id),lm));
 
         actorsRepository.save(actorOld);
-        return mapper.actorToActorDto(actorOld);
+        return mapper.actorToActorDto(actorOld,lm);
 
     }
 

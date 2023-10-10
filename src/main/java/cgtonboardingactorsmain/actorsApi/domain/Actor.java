@@ -1,13 +1,8 @@
 package cgtonboardingactorsmain.actorsApi.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.PastOrPresent;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
-import java.util.List;
 
 
 @Entity
@@ -17,13 +12,10 @@ public class Actor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer actorId;
 
-    @NotEmpty
     private String fullName;
 
-    @NotEmpty
     private String gender;
 
-    @PastOrPresent
     private LocalDate dateOfBirth;
 
     private String placeOfBirth;
@@ -36,7 +28,6 @@ public class Actor {
 
     private String biography;
 
-    @NotEmpty
     private String imageName;
 
     public Actor() {

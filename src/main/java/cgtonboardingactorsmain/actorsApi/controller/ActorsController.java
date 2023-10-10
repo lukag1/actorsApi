@@ -2,6 +2,7 @@ package cgtonboardingactorsmain.actorsApi.controller;
 
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
+import cgtonboardingactorsmain.actorsApi.fileApi.FileManagerApi;
 import cgtonboardingactorsmain.actorsApi.logger.LogLevel;
 import cgtonboardingactorsmain.actorsApi.logger.LoggerImpl;
 import cgtonboardingactorsmain.actorsApi.logger.LoggerModel;
@@ -10,7 +11,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,14 +19,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/actors")
 public class ActorsController {
-
     ActorService actorService;
     LoggerImpl logger;
+    FileManagerApi fileManagerApi;
 
     @Autowired
-    public ActorsController(ActorService actorService,LoggerImpl logger) {
+    public ActorsController(ActorService actorService,LoggerImpl logger,FileManagerApi fileManagerApi) {
         this.actorService = actorService;
         this.logger = logger;
+        this.fileManagerApi=fileManagerApi;
     }
 
     @GetMapping
@@ -48,7 +49,7 @@ public class ActorsController {
     }
 
     @PostMapping
-    public ResponseEntity<ActorDto> add(@RequestBody @Validated CreateActorDto createActorDto,@RequestHeader ("X-Request-ID") int xRequestedId){
+    public ResponseEntity<ActorDto> add(@RequestBody @Valid CreateActorDto createActorDto,@RequestHeader ("X-Request-ID") int xRequestedId){
         LoggerModel lm = logger.generateLM(xRequestedId);
         logger.formatLogMessageGen(LogLevel.INFO, lm, "Add actor method invoked");
         ActorDto actorDto = actorService.add(createActorDto, lm);
@@ -74,8 +75,8 @@ public class ActorsController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(path = "/image/{id}/{transactionId}")
-    public ResponseEntity<String> getCodeImage(@PathVariable int id, @PathVariable int transactionId) {
+    @GetMapping(path = "/image/{id}")
+    public ResponseEntity<String> getCodeImage(@PathVariable int id, @RequestHeader("TransactionID") int transactionId) {
         LoggerModel lm = logger.generateLM(transactionId);
         logger.formatLogMessageGen(LogLevel.INFO, lm, "Call from Movies Api to get image name");
 

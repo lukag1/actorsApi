@@ -1,12 +1,10 @@
 package cgtonboardingactorsmain.actorsApi.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class CreateActorDto {
     @NotNull(message = "Enter gender")
@@ -20,7 +18,6 @@ public class CreateActorDto {
     private String spouse;
     private String parents;
     private String biography;
-    @NotEmpty(message = "Enter image code")
     private String actorImage;
     private String children;
 

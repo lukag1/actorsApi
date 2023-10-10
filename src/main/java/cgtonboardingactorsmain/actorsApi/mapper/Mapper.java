@@ -1,10 +1,10 @@
 package cgtonboardingactorsmain.actorsApi.mapper;
 
-import cgtonboardingactorsmain.actorsApi.FilesHandling.FileManager;
 import cgtonboardingactorsmain.actorsApi.controller.ActorsController;
 import cgtonboardingactorsmain.actorsApi.domain.Actor;
 import cgtonboardingactorsmain.actorsApi.dto.ActorDto;
 import cgtonboardingactorsmain.actorsApi.dto.CreateActorDto;
+import cgtonboardingactorsmain.actorsApi.fileApi.FileManagerApi;
 import cgtonboardingactorsmain.actorsApi.logger.LogLevel;
 import cgtonboardingactorsmain.actorsApi.logger.LoggerImpl;
 import cgtonboardingactorsmain.actorsApi.logger.LoggerModel;
@@ -19,14 +19,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class Mapper {
 
     ActorsRepository actorsRepository;
-    FileManager fileManager;
-
+    FileManagerApi fileManagerApi;
     LoggerImpl logger;
 
-    public Mapper(ActorsRepository actorsRepository,FileManager fileManager,LoggerImpl logger) {
+    public Mapper(ActorsRepository actorsRepository,FileManagerApi fileManagerApi,LoggerImpl logger) {
         this.actorsRepository = actorsRepository;
-        this.fileManager = fileManager;
         this.logger = logger;
+        this.fileManagerApi = fileManagerApi;
     }
 
     public ActorDto actorToActorDto(Actor actor, LoggerModel lm){
@@ -47,7 +46,7 @@ public class Mapper {
         int year = now.getYear() - actor.getDateOfBirth().getYear();
         actorDto.setAge(year);
         actorDto.setHref(linkTo(ActorsController.class).slash(actorDto.getId()).toString());
-        actorDto.setActorImage(fileManager.saveCode(actor,lm));
+        actorDto.setActorImage(fileManagerApi.getBase64(actor.getImageName(),lm));
         actorDto.setImageName(actor.getImageName());
 
         logger.formatLogMessageGen(LogLevel.INFO,lm,"Finished actor To Actor Dto in mapper");
@@ -65,7 +64,7 @@ public class Mapper {
         actor.setFullName(actorDto.getFullName());
         actor.setDateOfBirth(actorDto.getDateOfBirth());
         actor.setSpouse(actorDto.getSpouse());
-        actor.setImageName(fileManager.saveImageName(actorDto,lm));
+        actor.setImageName(fileManagerApi.saveImage(actorDto.getActorImage(),lm));
 
         logger.formatLogMessageGen(LogLevel.INFO,lm,"Finished Actor Dto to actor in mapper");
         return actor;
